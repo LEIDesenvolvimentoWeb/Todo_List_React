@@ -1,4 +1,6 @@
-﻿namespace ToDoList.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ToDoList.Models
 {
     public class ToDo
     {
@@ -8,5 +10,12 @@
         public DateTime DataCriacao { get; set; } = DateTime.Now;
         public DateTime? DataParaConcluir { get; set; }
         public DateTime? DataConclusao { get; set; }
+
+        // Fk
+        [ForeignKey(nameof(Tipo))]
+        public int TipoId { get; set; }
+
+        public ToDoType Tipo { get; set; }
+        public string Fotografia { get; set; }
     }
 }

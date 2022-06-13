@@ -8,7 +8,7 @@ using ToDoList.Data;
 
 #nullable disable
 
-namespace ToDoList.Migrations
+namespace ToDoList.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -42,10 +42,18 @@ namespace ToDoList.Migrations
                     b.Property<string>("Descricao")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Fotografia")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TipoId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Titulo")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TipoId");
 
                     b.ToTable("ToDo");
 
@@ -53,45 +61,99 @@ namespace ToDoList.Migrations
                         new
                         {
                             Id = 1,
-                            DataCriacao = new DateTime(2022, 5, 30, 22, 24, 9, 611, DateTimeKind.Local).AddTicks(9778),
+                            DataCriacao = new DateTime(2022, 6, 13, 21, 15, 25, 171, DateTimeKind.Local).AddTicks(3325),
                             DataParaConcluir = new DateTime(2022, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "Fazer a aplicação de Adoções",
+                            TipoId = 1,
                             Titulo = "Trabalho de MVC"
                         },
                         new
                         {
                             Id = 2,
-                            DataCriacao = new DateTime(2022, 5, 30, 22, 24, 9, 611, DateTimeKind.Local).AddTicks(9825),
+                            DataCriacao = new DateTime(2022, 6, 13, 21, 15, 25, 171, DateTimeKind.Local).AddTicks(3330),
                             DataParaConcluir = new DateTime(2022, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "Fazer o FE com a api ToDo",
+                            TipoId = 1,
                             Titulo = "Trabalho de React"
                         },
                         new
                         {
                             Id = 3,
-                            DataCriacao = new DateTime(2022, 5, 30, 22, 24, 9, 611, DateTimeKind.Local).AddTicks(9827),
+                            DataCriacao = new DateTime(2022, 6, 13, 21, 15, 25, 171, DateTimeKind.Local).AddTicks(3334),
                             DataParaConcluir = new DateTime(2022, 6, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "Ficha número 3",
+                            TipoId = 1,
                             Titulo = "Trabalho de Redes"
                         },
                         new
                         {
                             Id = 4,
                             DataConclusao = new DateTime(2022, 5, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            DataCriacao = new DateTime(2022, 5, 30, 22, 24, 9, 611, DateTimeKind.Local).AddTicks(9830),
+                            DataCriacao = new DateTime(2022, 6, 13, 21, 15, 25, 171, DateTimeKind.Local).AddTicks(3338),
                             DataParaConcluir = new DateTime(2022, 6, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "Ficha número 8",
+                            TipoId = 1,
                             Titulo = "Fichas de Base de Dados"
                         },
                         new
                         {
                             Id = 5,
                             DataConclusao = new DateTime(2022, 5, 29, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            DataCriacao = new DateTime(2022, 5, 30, 22, 24, 9, 611, DateTimeKind.Local).AddTicks(9832),
+                            DataCriacao = new DateTime(2022, 6, 13, 21, 15, 25, 171, DateTimeKind.Local).AddTicks(3342),
                             DataParaConcluir = new DateTime(2022, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Descricao = "Ficha número 4",
+                            TipoId = 1,
                             Titulo = "Fichas de Sistemas Operativos"
                         });
+                });
+
+            modelBuilder.Entity("ToDoList.Models.ToDoType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ToDoType");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Descricao = "Escola"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Descricao = "Trabalhos"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Descricao = "Outros"
+                        });
+                });
+
+            modelBuilder.Entity("ToDoList.Models.ToDo", b =>
+                {
+                    b.HasOne("ToDoList.Models.ToDoType", "Tipo")
+                        .WithMany("ToDoLista")
+                        .HasForeignKey("TipoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tipo");
+                });
+
+            modelBuilder.Entity("ToDoList.Models.ToDoType", b =>
+                {
+                    b.Navigation("ToDoLista");
                 });
 #pragma warning restore 612, 618
         }
