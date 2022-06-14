@@ -16,6 +16,6 @@ namespace ToDoList.Models
         public int TipoId { get; set; }
 
         public ToDoType Tipo { get; set; }
-        public string Fotografia { get; set; }
+        public string Ficheiro { get; set; }
     }
 }

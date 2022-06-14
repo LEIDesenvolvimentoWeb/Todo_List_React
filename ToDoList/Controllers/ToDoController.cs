@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ToDoList.Data;
+using ToDoList.DTO;
 using ToDoList.Models;
 
 namespace ToDoList.Controllers
@@ -10,22 +11,45 @@ namespace ToDoList.Controllers
     public class ToDoController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly string diretoria;
 
         public ToDoController(ApplicationDbContext context)
         {
             _context = context;
+            this.diretoria = Path.Combine(Directory.GetCurrentDirectory(), "Ficheiros");
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ToDo>>> Get()
+        public async Task<ActionResult<IEnumerable<GetToDoDTO>>> Get()
         {
-            return await _context.ToDo.ToListAsync();
+            return await _context.ToDo.Select(x => new GetToDoDTO
+            {
+                Id = x.Id,
+                DataConclusao = x.DataConclusao,
+                DataParaConcluir = x.DataParaConcluir,
+                DataCriacao = x.DataCriacao,
+                Descricao = x.Descricao,
+                Tipo = x.Tipo.Descricao,
+                Ficheiro = x.Ficheiro == null ? null : diretoria + "\\" + x.Ficheiro,
+                Titulo = x.Titulo
+            }
+            ).ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ToDo>> GetById(long id)
+        public async Task<ActionResult<ToDoDTO>> GetById(long id)
         {
-            var todo = await _context.ToDo.FirstOrDefaultAsync(x => x.Id == id);
+            var todo = await _context.ToDo.Select(x => new GetToDoDTO
+            {
+                Id = x.Id,
+                DataConclusao = x.DataConclusao,
+                DataParaConcluir = x.DataParaConcluir,
+                DataCriacao = x.DataCriacao,
+                Descricao = x.Descricao,
+                Tipo = x.Tipo.Descricao,
+                Ficheiro = x.Ficheiro == null ? null : diretoria + "\\" + x.Ficheiro,
+                Titulo = x.Titulo
+            }).FirstOrDefaultAsync(x => x.Id == id);
 
             if (todo == null)
             {
@@ -36,7 +60,7 @@ namespace ToDoList.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Edit(int id, ToDo toDo)
+        public async Task<IActionResult> Edit(int id, ToDo toDo, IFormFile uploadFicheiro)
         {
             if (id != toDo.Id)
             {
@@ -65,12 +89,65 @@ namespace ToDoList.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ToDo>> Create(ToDo toDo)
+        public async Task<ActionResult<ToDoDTO>> Create([FromForm] ToDoDTO toDo, IFormFile uploadFicheiro)
         {
-            _context.ToDo.Add(toDo);
-            await _context.SaveChangesAsync();
+            string caminhoCompletoFoto = "";
+            bool existeFoto = false;
+            string nomeFicheiro = null;
 
-            return Ok(toDo);
+            if (uploadFicheiro.ContentType != null)
+            {
+                //Gerar nome do ficheiro
+                Guid guid = Guid.NewGuid();
+
+                //Criação da Extensão Do Ficheiro
+                string extensao = Path.GetExtension(uploadFicheiro.FileName).ToLower();
+                nomeFicheiro = guid.ToString() + extensao;
+
+                //Guardar o Ficheiro
+                caminhoCompletoFoto = Path.Combine(diretoria, nomeFicheiro);
+
+                existeFoto = true;
+            }
+
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var toDoNew = new ToDo
+                    {
+                        Titulo = toDo.Titulo,
+                        Descricao = toDo.Descricao,
+                        DataCriacao = DateTime.Now,
+                        Ficheiro = nomeFicheiro,
+                        DataConclusao = toDo.DataConclusao,
+                        DataParaConcluir = toDo.DataParaConcluir,
+                        TipoId = toDo.Tipo
+                    };
+
+                    _context.ToDo.Add(toDoNew);
+                    await _context.SaveChangesAsync();
+
+                    if (existeFoto)
+                    {
+                        //Validação da Existência do Directório
+                        if (!Directory.Exists(diretoria))
+                        {
+                            Directory.CreateDirectory(diretoria);
+                        }
+
+                        using var stream = new FileStream(caminhoCompletoFoto, FileMode.Create);
+                        await uploadFicheiro.CopyToAsync(stream);
+                    }
+                    return Ok(toDo);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
