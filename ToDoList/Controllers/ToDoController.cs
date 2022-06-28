@@ -25,29 +25,31 @@ namespace ToDoList.Controllers
             return await _context.ToDo.Select(x => new GetToDoDTO
             {
                 Id = x.Id,
-                DataConclusao = x.DataConclusao,
-                DataParaConcluir = x.DataParaConcluir,
-                DataCriacao = x.DataCriacao,
+                DataConclusao = x.DataConclusao.Value.ToString("MM/dd/yyyy HH:mm"),
+                DataParaConcluir = x.DataParaConcluir.Value.ToString("MM/dd/yyyy HH:mm"),
+                DataCriacao = x.DataCriacao.ToString("MM/dd/yyyy HH:mm"),
                 Descricao = x.Descricao,
                 Tipo = x.Tipo.Descricao,
-                Ficheiro = x.Ficheiro == null ? null : diretoria + "\\" + x.Ficheiro,
+                Ficheiro = x.Ficheiro,
+                Directoria = x.Ficheiro == null ? null : diretoria + "\\" + x.Ficheiro,
                 Titulo = x.Titulo
             }
             ).ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ToDoDTO>> GetById(long id)
+        public async Task<ActionResult<GetToDoDTO>> GetById(long id)
         {
             var todo = await _context.ToDo.Select(x => new GetToDoDTO
             {
                 Id = x.Id,
-                DataConclusao = x.DataConclusao,
-                DataParaConcluir = x.DataParaConcluir,
-                DataCriacao = x.DataCriacao,
+                DataConclusao = x.DataConclusao.Value.ToString("MM/dd/yyyy HH:mm"),
+                DataParaConcluir = x.DataParaConcluir.Value.ToString("MM/dd/yyyy HH:mm"),
+                DataCriacao = x.DataCriacao.ToString("MM/dd/yyyy HH:mm"),
                 Descricao = x.Descricao,
                 Tipo = x.Tipo.Descricao,
-                Ficheiro = x.Ficheiro == null ? null : diretoria + "\\" + x.Ficheiro,
+                Ficheiro = x.Ficheiro,
+                Directoria = x.Ficheiro == null ? null : diretoria + "\\" + x.Ficheiro,
                 Titulo = x.Titulo
             }).FirstOrDefaultAsync(x => x.Id == id);
 
