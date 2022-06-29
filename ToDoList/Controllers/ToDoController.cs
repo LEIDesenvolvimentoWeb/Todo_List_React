@@ -22,7 +22,7 @@ namespace ToDoList.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetToDoDTO>>> Get()
         {
-            return await _context.ToDo.Select(x => new GetToDoDTO
+            var toDo = await _context.ToDo.Select(x => new GetToDoDTO
             {
                 Id = x.Id,
                 DataConclusao = x.DataConclusao.Value.ToString("MM/dd/yyyy HH:mm"),
@@ -35,6 +35,10 @@ namespace ToDoList.Controllers
                 Titulo = x.Titulo
             }
             ).ToListAsync();
+
+            toDo = toDo.OrderBy(x => x.DataConclusao).ToList();
+
+            return toDo;
         }
 
         [HttpGet("{id}")]
@@ -97,7 +101,7 @@ namespace ToDoList.Controllers
             bool existeFoto = false;
             string nomeFicheiro = null;
 
-            if (uploadFicheiro.ContentType != null)
+            if (uploadFicheiro != null)
             {
                 //Gerar nome do ficheiro
                 Guid guid = Guid.NewGuid();
