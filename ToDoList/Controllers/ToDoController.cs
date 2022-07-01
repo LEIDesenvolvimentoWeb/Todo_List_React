@@ -66,17 +66,21 @@ namespace ToDoList.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Edit(int id, ToDo toDo, IFormFile uploadFicheiro)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id != toDo.Id)
+            var task = await _context.ToDo.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (task.DataConclusao != null)
             {
                 return BadRequest();
             }
 
-            _context.Entry(toDo).State = EntityState.Modified;
+            task.DataConclusao = DateTime.Now;
 
             try
             {
+                _context.Update(task);
+
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
