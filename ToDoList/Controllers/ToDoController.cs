@@ -70,7 +70,7 @@ namespace ToDoList.Controllers
         {
             var task = await _context.ToDo.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (task.DataConclusao != null)
+            if (task.DataConclusao == null)
             {
                 return BadRequest();
             }
