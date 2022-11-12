@@ -51,7 +51,7 @@ app.MapGet("/security/getMessage", () => "Hello World!").RequireAuthorization();
 app.MapPost("/security/createToken",
 [AllowAnonymous] (User user) =>
 {
-    if (user.UserName == "teste" && user.Password == "teste123")
+    if (user.UserName != null && user.Password != null)
     {
         var issuer = builder.Configuration["Jwt:Issuer"];
         var audience = builder.Configuration["Jwt:Audience"];
